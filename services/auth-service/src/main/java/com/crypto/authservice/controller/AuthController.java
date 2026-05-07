@@ -23,5 +23,9 @@ public class AuthController {
     public String login(@RequestBody LoginRequest request) {
         return authService.login(request);
     }
+    @GetMapping("/profile")
+    public String profile() {
+        return "Protected profile endpoint accessed";
+    }
 
 }
