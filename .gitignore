@@ -1,9 +1,0 @@
-target/
-*.log
-*.class
-.env
-.idea/
-.vscode/
-*.iml
-node_modules/
-.DS_Store
