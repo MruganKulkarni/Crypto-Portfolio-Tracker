@@ -1,3 +1,5 @@
+// HoldingClient.java
+
 package com.crypto.portfolio_service.client;
 
 import com.crypto.portfolio_service.dto.response.HoldingResponse;
@@ -12,6 +14,7 @@ public interface HoldingClient {
 
     @GetMapping
     List<HoldingResponse> getUserHoldings(
-            @RequestHeader("X-User-Id") Long userId
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("Authorization") String authHeader
     );
 }

@@ -1,3 +1,5 @@
+// GlobalExceptionHandler.java
+
 package com.crypto.portfolio_service.exception;
 
 import org.springframework.http.HttpStatus;

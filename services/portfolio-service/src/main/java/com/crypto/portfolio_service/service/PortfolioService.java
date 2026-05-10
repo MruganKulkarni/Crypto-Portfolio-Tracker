@@ -1,3 +1,5 @@
+// PortfolioService.java
+
 package com.crypto.portfolio_service.service;
 
 import com.crypto.portfolio_service.dto.response.HoldingGainResponse;
@@ -7,9 +9,19 @@ import java.util.List;
 
 public interface PortfolioService {
 
-    PortfolioSummaryResponse getPortfolioSummary(Long userId);
+    PortfolioSummaryResponse getPortfolioSummary(
+            Long userId,
+            String authHeader
+    );
 
-    List<HoldingGainResponse> getAllHoldings(Long userId);
+    List<HoldingGainResponse> getAllHoldings(
+            Long userId,
+            String authHeader
+    );
 
-    HoldingGainResponse getHoldingByCoin(Long userId, String coin);
+    HoldingGainResponse getHoldingByCoin(
+            Long userId,
+            String coin,
+            String authHeader
+    );
 }

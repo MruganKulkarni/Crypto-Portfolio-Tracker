@@ -1,3 +1,5 @@
+// PortfolioServiceImpl.java
+
 package com.crypto.portfolio_service.service.impl;
 
 import com.crypto.portfolio_service.client.HoldingClient;
@@ -24,10 +26,13 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final PriceClient priceClient;
 
     @Override
-    public PortfolioSummaryResponse getPortfolioSummary(Long userId) {
+    public PortfolioSummaryResponse getPortfolioSummary(
+            Long userId,
+            String authHeader
+    ) {
 
         List<HoldingGainResponse> holdings =
-                getAllHoldings(userId);
+                getAllHoldings(userId, authHeader);
 
         BigDecimal totalInvested =
                 holdings.stream()
@@ -62,10 +67,16 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public List<HoldingGainResponse> getAllHoldings(Long userId) {
+    public List<HoldingGainResponse> getAllHoldings(
+            Long userId,
+            String authHeader
+    ) {
 
         List<HoldingResponse> holdings =
-                holdingClient.getUserHoldings(userId);
+                holdingClient.getUserHoldings(
+                        userId,
+                        authHeader
+                );
 
         return holdings.stream()
                 .map(this::calculateGain)
@@ -75,10 +86,11 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public HoldingGainResponse getHoldingByCoin(
             Long userId,
-            String coin
+            String coin,
+            String authHeader
     ) {
 
-        return getAllHoldings(userId)
+        return getAllHoldings(userId, authHeader)
                 .stream()
                 .filter(h ->
                         h.getCoinSymbol()

@@ -1,3 +1,5 @@
+// PortfolioController.java
+
 package com.crypto.portfolio_service.controller;
 
 import com.crypto.portfolio_service.dto.response.HoldingGainResponse;
@@ -17,29 +19,39 @@ public class PortfolioController {
 
     @GetMapping("/summary")
     public PortfolioSummaryResponse getSummary(
-            @RequestHeader("X-User-Id") Long userId
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("Authorization") String authHeader
     ) {
 
-        return portfolioService.getPortfolioSummary(userId);
+        return portfolioService.getPortfolioSummary(
+                userId,
+                authHeader
+        );
     }
 
     @GetMapping("/holdings")
     public List<HoldingGainResponse> getHoldings(
-            @RequestHeader("X-User-Id") Long userId
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("Authorization") String authHeader
     ) {
 
-        return portfolioService.getAllHoldings(userId);
+        return portfolioService.getAllHoldings(
+                userId,
+                authHeader
+        );
     }
 
     @GetMapping("/holdings/{coin}")
     public HoldingGainResponse getHoldingByCoin(
             @RequestHeader("X-User-Id") Long userId,
-            @PathVariable String coin
+            @PathVariable String coin,
+            @RequestHeader("Authorization") String authHeader
     ) {
 
         return portfolioService.getHoldingByCoin(
                 userId,
-                coin
+                coin,
+                authHeader
         );
     }
 }
