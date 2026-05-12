@@ -1,59 +1,101 @@
 package com.crypto.price_service.service;
 
-import com.crypto.price_service.dto.CoinGeckoResponse;
+import com.crypto.price_service.client.CoinGeckoClient;
 import com.crypto.price_service.entity.CryptoPrice;
-import com.crypto.price_service.repository.CryptoPriceRepository;
-import lombok.RequiredArgsConstructor;
+import com.crypto.price_service.repository.PriceRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class PriceService {
 
-    private final RestTemplate restTemplate;
-    private final CryptoPriceRepository repository;
+    private final PriceRepository repository;
 
-    private static final String COINGECKO_URL =
-            "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd";
+    private final CoinGeckoClient coinGeckoClient;
+
+    public PriceService(
+            PriceRepository repository,
+            CoinGeckoClient coinGeckoClient
+    ) {
+        this.repository = repository;
+        this.coinGeckoClient = coinGeckoClient;
+    }
 
     public List<CryptoPrice> fetchAndSavePrices() {
 
-        CoinGeckoResponse[] response = restTemplate.getForObject(
-                COINGECKO_URL,
-                CoinGeckoResponse[].class
-        );
+        Map<String, Map<String, Object>> response =
+                coinGeckoClient.getPrices(
+                        "bitcoin,ethereum",
+                        "usd",
+                        true
+                );
 
-        if (response == null) {
-            return List.of();
+        List<CryptoPrice> savedPrices = new ArrayList<>();
+
+        for (String coin : response.keySet()) {
+
+            Map<String, Object> coinData =
+                    response.get(coin);
+
+            CryptoPrice cryptoPrice = new CryptoPrice();
+
+            cryptoPrice.setCoinId(coin);
+
+            cryptoPrice.setSymbol(
+                    coin.substring(0, 3).toUpperCase()
+            );
+
+            cryptoPrice.setName(coin);
+
+            cryptoPrice.setCurrentPrice(
+                    ((Number) coinData.get("usd"))
+                            .doubleValue()
+            );
+
+            cryptoPrice.setMarketCap(
+                    coinData.get("usd_market_cap") != null
+                            ? ((Number) coinData.get("usd_market_cap"))
+                            .doubleValue()
+                            : 0.0
+            );
+
+            cryptoPrice.setLastUpdated(
+                    LocalDateTime.now()
+            );
+
+            savedPrices.add(
+                    repository.save(cryptoPrice)
+            );
         }
 
-        List<CryptoPrice> prices = Arrays.stream(response)
-                .map(coin -> {
-
-                    CryptoPrice cryptoPrice = repository
-                            .findByCoinId(coin.getId())
-                            .orElse(new CryptoPrice());
-
-                    cryptoPrice.setCoinId(coin.getId());
-                    cryptoPrice.setSymbol(coin.getSymbol());
-                    cryptoPrice.setName(coin.getName());
-                    cryptoPrice.setCurrentPrice(coin.getCurrent_price());
-                    cryptoPrice.setMarketCap(coin.getMarket_cap());
-                    cryptoPrice.setLastUpdated(LocalDateTime.now());
-
-                    return repository.save(cryptoPrice);
-                })
-                .toList();
-
-        return prices;
+        return savedPrices;
     }
 
     public List<CryptoPrice> getAllPrices() {
         return repository.findAll();
+    }
+
+    public CryptoPrice getPriceByCoin(
+            String coinId
+    ) {
+
+        return repository.findByCoinId(coinId)
+                .orElseThrow(
+                        () -> new RuntimeException("Coin not found")
+                );
+    }
+
+    public List<CryptoPrice> getCoinHistory(
+            String coinId
+    ) {
+
+        return repository
+                .findByCoinIdOrderByLastUpdatedDesc(
+                        coinId
+                );
     }
 }
