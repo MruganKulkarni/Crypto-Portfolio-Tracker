@@ -12,7 +12,7 @@ import com.crypto.authservice.security.JwtService;
 
 
 @Service
-@RequiredArgsConstructor
+
 public class AuthService {
 
     private final UserRepository userRepository;
