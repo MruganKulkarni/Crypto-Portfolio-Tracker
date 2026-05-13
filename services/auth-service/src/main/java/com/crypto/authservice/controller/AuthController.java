@@ -12,7 +12,7 @@ import com.crypto.authservice.dto.RefreshRequest;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
+
 public class AuthController {
 
     private final AuthService authService;

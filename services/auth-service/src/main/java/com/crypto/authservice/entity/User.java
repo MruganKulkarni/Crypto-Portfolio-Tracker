@@ -1,17 +1,17 @@
 package com.crypto.authservice.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+
+
+
+
+
 public class User {
 
     @Id
