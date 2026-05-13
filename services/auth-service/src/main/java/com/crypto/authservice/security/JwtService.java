@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
+import com.crypto.authservice.entity.User;
+import java.util.HashMap;
+import java.util.Map;
 @Service
 public class JwtService {
 
@@ -21,12 +24,28 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String email) {
+    public String generateToken(User user) {
+
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("role", user.getRole().name());
 
         return Jwts.builder()
-                .setSubject(email)
+                .setClaims(claims)
+                .setSubject(user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    public String generateRefreshToken(User user) {
+
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date())
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000))
+                )
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -34,6 +53,10 @@ public class JwtService {
     public String extractEmail(String token) {
 
         return extractClaims(token).getSubject();
+    }
+    public String extractRole(String token) {
+
+        return extractClaims(token).get("role", String.class);
     }
 
     public boolean isTokenValid(String token, String email) {
